@@ -199,7 +199,7 @@
 
             this.completeByCondition = char => {
                 if (!Hangul.isConsonant(char) && !Hangul.isVowel(char)) {
-                    this.value.complete += char;
+                    this.value.complete += this.value.current + char;
                     this.value.current = "";
                     this.display();
                     return;
