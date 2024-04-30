@@ -129,7 +129,7 @@
                         tag += "<div>";
                         row.forEach(key => {
                             const value = Array.isArray(key) ? key[this.shift ? 1 : 0] : key;
-                            const button = type == "function" ? `<button type="button" id="${key.id}" class="key function" ${key.value === 'undefined' ? "" : `data-value="${key.value}"`}>${key.name}</button>` : `<button type="button" class="key language">${value}</button>`;
+                            const button = type == "function" ? `<button type="button" id="${key.id}" class="key ${type}" ${key.value === 'undefined' ? "" : `data-value="${key.value}"`}>${key.name}</button>` : `<button type="button" class="key language">${value}</button>`;
                             tag += button;
                         });
                         tag += "</div>";
@@ -142,19 +142,20 @@
 
             this.addEventListener = () => {
                 document.querySelectorAll(".key").forEach(key => {
-                    key.addEventListener("click", () => {
-                        
-                    });
                     if (!key.classList.contains("function")) {
                         key.addEventListener("click", () => {
-                        if (this.cursorTimer != null) clearTimeout(this.cursorTimer);
-                        this.completeByCondition(key.textContent);
-                        if (this.currentSet != "KOR") return;
-                        this.cursorTimer = setTimeout(() => {
-                            this.value.complete += this.value.current;
-                            this.value.current = "";
-                            this.display();
-                        }, this.option.cursorTimer);
+                            if (this.shift) {
+                                this.shift = false;
+                                this.setKeyboard();
+                            }
+                            if (this.cursorTimer != null) clearTimeout(this.cursorTimer);
+                            this.completeByCondition(key.textContent);
+                            if (this.currentSet != "KOR") return;
+                            this.cursorTimer = setTimeout(() => {
+                                this.value.complete += this.value.current;
+                                this.value.current = "";
+                                this.display();
+                            }, this.option.cursorTimer);
                         });
                     }
                 });           
