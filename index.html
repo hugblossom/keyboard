@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./hangul.js"></script>
+    <title>Document</title>
+    <style>
+        html { line-height: 1.2; }
+        .key { padding: 1rem; }
+        #keyboard_frame { text-align: center; margin: 1rem; }
+        #output { width: 500px; position: relative; margin: 0 auto; padding: .5rem; background: #efefef; }
+        #viewer { display: inline-block; position: relative; }
+        #viewer #cursor { animation: twinkle 1s infinite; position: absolute; left: 100%; bottom: 0; min-width: 1rem; height: 0; border-bottom: 1px solid #000; }
+        #viewer.on #cursor { left: auto; right: 0; }
+        @keyframes twinkle {
+            0% { border-color: transparent; }
+            50% { border-color: transparent; }
+            51% { border-color: #000; }
+            100% { border-color: #796f6f; }
+        }
+    </style>
+</head>
+<body>
+    <div id="keyboard">
+        <div id="output"></div>
+    </div>
+    
+    <script>
+        const VirtualKeyboard = function(parent, output) {
+            this.option = {
+                cursorTimer: 2000
+            }
+            this.parent = document.querySelector(`#${parent}`);
+            this.output = document.querySelector(`#${output}`);
+            this.keyboard = null;
+            this.viewer = null;
+            this.storage = null;
+            this.chars = new Array();
+            this.value = {
+                complete: "",
+                current: ""
+            }
+            this.defaultSet = "KOR";
+            this.currentSet = this.defaultSet;
+            this.shift = false;
+            this.cursorTimer = null;
+            this.keyInfo = {
+                KOR: {
+                    type: {
+                        number: [
+                            ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+                        ],
+                        language: [
+                            [["ㅂ", "ㅃ"], ["ㅈ", "ㅉ"], ["ㄷ", "ㄸ"], ["ㄱ", "ㄲ"], ["ㅅ", "ㅆ"], "ㅛ", "ㅕ", "ㅑ", ["ㅐ", "ㅒ"], ["ㅔ", "ㅖ"]],
+                            ["ㅁ", "ㄴ", "ㅇ", "ㄹ", "ㅎ","ㅗ", "ㅓ", "ㅏ", "ㅣ"],
+                            ["ㅋ", "ㅌ", "ㅊ", "ㅍ", "ㅠ", "ㅜ", "ㅡ"]
+                        ],
+                        function: [
+                            [
+                                {id: "shift", name: "shift"},
+                                {id: "space", name: "Space", value: " "},
+                                {id: "backspace", name: "← Backspace"},
+                                {id: "switch", name: "ENG", value: "ENG"},
+                                {id: "enter", name: "입력완료"}
+                            ]
+                        ]
+                    },
+                    option: {
+                        switch: "ENG"
+                    }
+                },
+                ENG: {
+                    type: {
+                        number: [
+                            ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+                        ],
+                        language: [
+                            [["q", "Q"], ["w", "W"], ["e", "E"], ["r", "R"], ["t", "T"], ["y", "Y"], ["u", "U"], ["i", "I"], ["o", "O"], ["p", "P"]],
+                            [["a", "A"], ["s", "S"], ["d", "D"], ["f", "F"], ["g", "G"], ["h", "H"], ["j", "J"], ["k", "K"], ["l" ,"L"]],
+                            [["z", "Z"], ["x", "X"], ["c", "C"], ["v", "V"], ["b", "B"], ["n", "N"], ["m", "M"]]
+                        ],
+                        function: [
+                            [
+                                {id: "shift", name: "shift"},
+                                {id: "space", name: "Space", value: " "},
+                                {id: "backspace", name: "← Backspace"},
+                                {id: "switch", name: "한국어", value: "KOR"},
+                                {id: "enter", name: "done"}
+                            ]
+                        ]
+                    },
+                    option: {
+                        switch: "KOR"
+                    }
+                },
+                NUMBER: {
+                    type: {
+                        number: [
+                            ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+                        ],
+                        function: [
+                            {id: "backspace", name: "← Backspace"},
+                        ],
+                    },
+                }
+            }
+            
+            this.setKeyboard = (option) => {
+                if (typeof option !== 'undefined') this.currentSet = option;
+                if (this.storage == null) {
+                    this.viewer = document.createElement("div");
+                    this.viewer.innerHTML = '<span id="cursor"></span>';
+                    this.viewer.id = "viewer";
+                    this.storage = document.createElement("div");
+                    this.storage.id = "storage";
+                    this.viewer.append(this.storage);
+                    this.output.append(this.viewer);
+                }
+                if (this.keyboard == null) {
+                    this.keyboard = document.createElement("div");
+                    this.keyboard.id = "keyboard";
+                    this.parent.append(this.keyboard);
+                }
+                let tag = "";
+                tag += '<div id="keyboard_frame">';
+                Object.keys(this.keyInfo[this.currentSet].type).forEach(type => {          
+                    this.keyInfo[this.currentSet].type[type].forEach(row => {
+                        tag += "<div>";
+                        row.forEach(key => {
+                            const value = Array.isArray(key) ? key[this.shift ? 1 : 0] : key;
+                            const button = type == "function" ? `<button type="button" id="${key.id}" class="key function" ${key.value === 'undefined' ? "" : `data-value="${key.value}"`}>${key.name}</button>` : `<button type="button" class="key language">${value}</button>`;
+                            tag += button;
+                        });
+                        tag += "</div>";
+                    });
+                });
+                this.keyboard.innerHTML = tag;
+
+                this.addEventListener();
+            }
+
+            this.addEventListener = () => {
+                document.querySelectorAll(".key").forEach(key => {
+                    key.addEventListener("click", () => {
+                        
+                    });
+                    if (!key.classList.contains("function")) {
+                        key.addEventListener("click", () => {
+                        if (this.cursorTimer != null) clearTimeout(this.cursorTimer);
+                        this.completeByCondition(key.textContent);
+                        if (this.currentSet != "KOR") return;
+                        this.cursorTimer = setTimeout(() => {
+                            this.value.complete += this.value.current;
+                            this.value.current = "";
+                            this.display();
+                        }, this.option.cursorTimer);
+                        });
+                    }
+                });           
+                
+                document.querySelector("#backspace").addEventListener("click", () => {
+                    if (this.cursorTimer != null) clearTimeout(this.cursorTimer);
+                    if (this.value.current == "") {
+                        let temp = this.value.complete.split("");
+                        temp.pop();
+                        this.value.complete = Hangul.assemble(temp);
+                    } else {
+                        let temp = Hangul.disassemble(this.value.current);
+                        temp.pop();
+                        this.value.current = Hangul.assemble(temp);
+                    }
+                    this.display();
+                });
+
+                document.querySelector("#space").addEventListener("click", (event) => {
+                    this.completeByCondition(event.target.getAttribute("data-value"));
+                });
+
+                document.querySelector("#switch").addEventListener("click", (event) => {
+                    this.shift = false;
+                    this.setKeyboard(event.target.getAttribute("data-value"));
+                });
+
+                document.querySelector("#shift").addEventListener("click", () => {
+                    this.shift = this.shift ? false : true;
+                    this.setKeyboard(this.currentSet);
+                });
+                
+                document.querySelector("#enter").addEventListener("click", () => {
+                    
+                });
+            }
+
+            this.display = () => {
+                this.value.current ==  "" ? this.viewer.classList.remove("on") : this.viewer.classList.add("on");
+                this.storage.innerHTML = (this.value.complete + this.value.current).replaceAll(" ", "&nbsp;");
+            }
+
+            this.completeByCondition = char => {
+                if (!Hangul.isConsonant(char) && !Hangul.isVowel(char)) {
+                    this.value.complete += char;
+                    this.value.current = "";
+                    this.display();
+                    return;
+                }
+                const temp = Hangul.assemble(Hangul.disassemble(this.value.current + char)).split("");
+                if (char == " ") {
+                    if (this.value.current == "") {
+                        this.value.complete += temp[0];
+                        this.value.current = "";
+                    } else {
+                        this.value.complete += this.value.current;
+                        this.value.current = "";
+                    }                   
+                } else if (temp.length > 1) {
+                    this.value.complete += temp[0];
+                    this.value.current = temp[1];
+                } else {
+                    this.value.current = temp;
+                }
+                this.display();
+            };
+
+            this.getValue = () => {
+                return this.value.complete + this.value.current;
+            }
+            
+            this.setKeyboard();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new VirtualKeyboard("keyboard", "output");
+        });
+    </script>
+</body>
+</html>
