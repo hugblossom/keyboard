@@ -144,12 +144,12 @@
                 document.querySelectorAll(".key").forEach(key => {
                     if (!key.classList.contains("function")) {
                         key.addEventListener("click", () => {
+                            if (this.cursorTimer != null) clearTimeout(this.cursorTimer);
+                            this.completeByCondition(key.textContent);
                             if (this.shift) {
                                 this.shift = false;
                                 this.setKeyboard();
                             }
-                            if (this.cursorTimer != null) clearTimeout(this.cursorTimer);
-                            this.completeByCondition(key.textContent);
                             if (this.currentSet != "KOR") return;
                             this.cursorTimer = setTimeout(() => {
                                 this.value.complete += this.value.current;
