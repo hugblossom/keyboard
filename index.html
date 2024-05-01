@@ -27,7 +27,7 @@
     </div>
     
     <script>
-        const VirtualKeyboard = function(parent, output) {
+        const VirtualKeyboard = function(parent, output, keySet) {
             this.option = {
                 cursorTimer: 2000
             }
@@ -41,11 +41,11 @@
                 complete: "",
                 current: ""
             }
-            this.defaultSet = "KOR";
+            this.defaultSet = typeof keySet === 'undefined' ? "KOR" : keySet;
             this.currentSet = this.defaultSet;
             this.shift = false;
             this.cursorTimer = null;
-            this.keyInfo = {
+            this.keySet = {
                 KOR: {
                     type: {
                         number: [
@@ -94,20 +94,23 @@
                         switch: "KOR"
                     }
                 },
-                NUMBER: {
+                NUM: {
                     type: {
                         number: [
-                            ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+                            ["1", "2", "3"],
+                            ["4", "5", "6"],
+                            ["7", "8", "9"],
+                            ["0"]
                         ],
                         function: [
-                            {id: "backspace", name: "← Backspace"},
+                            [{id: "backspace", name: "← Backspace"}]
                         ],
                     },
                 }
             }
             
-            this.setKeyboard = (option) => {
-                if (typeof option !== 'undefined') this.currentSet = option;
+            this.setKeyboard = (set) => {
+                if (typeof set !== 'undefined') this.currentSet = set;
                 if (this.storage == null) {
                     this.viewer = document.createElement("div");
                     this.viewer.innerHTML = '<span id="cursor"></span>';
@@ -122,21 +125,20 @@
                     this.keyboard.id = "keyboard";
                     this.parent.append(this.keyboard);
                 }
-                let tag = "";
-                tag += '<div id="keyboard_frame">';
-                Object.keys(this.keyInfo[this.currentSet].type).forEach(type => {          
-                    this.keyInfo[this.currentSet].type[type].forEach(row => {
-                        tag += "<div>";
+                let keys = "";
+                keys += `<div id="keyboard_frame" class="${this.currentSet.toLowerCase()}">`;
+                Object.keys(this.keySet[this.currentSet].type).forEach(type => {          
+                    this.keySet[this.currentSet].type[type].forEach(row => {
+                        keys += "<div>";
                         row.forEach(key => {
                             const value = Array.isArray(key) ? key[this.shift ? 1 : 0] : key;
                             const button = type == "function" ? `<button type="button" id="${key.id}" class="key ${type}" ${key.value === 'undefined' ? "" : `data-value="${key.value}"`}>${key.name}</button>` : `<button type="button" class="key language">${value}</button>`;
-                            tag += button;
+                            keys += button;
                         });
-                        tag += "</div>";
+                        keys += "</div>";
                     });
                 });
-                this.keyboard.innerHTML = tag;
-
+                this.keyboard.innerHTML = keys;
                 this.addEventListener();
             }
 
@@ -189,7 +191,7 @@
                 });
                 
                 document.querySelector("#enter").addEventListener("click", () => {
-                    
+                    this.value.complete += this.value.current;
                 });
             }
 
@@ -199,7 +201,7 @@
             }
 
             this.completeByCondition = char => {
-                if (!Hangul.isConsonant(char) && !Hangul.isVowel(char)) {
+                if (!Hangul.isConsonant(char) && !Hangul.isVowel(char) && char != " ") {
                     this.value.complete += this.value.current + char;
                     this.value.current = "";
                     this.display();
@@ -231,7 +233,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            new VirtualKeyboard("keyboard", "output");
+            new VirtualKeyboard("keyboard", "output", "KOR");
         });
     </script>
 </body>
