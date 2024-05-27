@@ -1,0 +1,155 @@
+@charset "utf-8";
+
+* { font-family: 'IBMPlexSansKR'; color: #5D5134; letter-spacing: -.05rem; margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 60px; }
+html, body { width: 100%; height: 100%; }
+a { text-decoration: none; }
+ul, ol { list-style: none; }
+em { font-style: normal; }
+
+
+#vkeyboard { overflow: hidden; }
+#vkeyboard #frame { text-align: center; margin: 1rem; }
+#vkeyboard #frame .key { user-select: none; }
+#vkeyboard #frame .key.disabled { pointer-events: none; }
+#output { width: 500px; position: relative; margin: 0 auto; padding: .5rem; background: #efefef; }
+
+#vkeyboard_viewer { position: relative; }
+#placeholder { z-index: 0; opacity: .2; user-select: none; display: block; width: 100%; height: 100%; position: absolute; left: 0; top: 0; }
+#vkeyboard_viewer #placeholder { pointer-events: none; user-select: none; }
+#vkeyboard_viewer #input span.empty::before { z-index: -1; opacity: 0; display: inline-block; width: 0; position: relative; }
+#vkeyboard_viewer.kor #input span#cursor.empty::before { content: '가'; z-index: -1; opacity: 0; display: inline-block; position: relative; }
+#vkeyboard_viewer.eng #input span#cursor.empty::before { content: 'a'; }
+#vkeyboard_viewer.number #input span#cursor.empty::before { content: '1'; }
+#vkeyboard_viewer #input span,
+#vkeyboard_viewer #input em { position: relative; }
+#vkeyboard_viewer #input #cursor i { animation: cursor 1s infinite; pointer-events: none; user-select: none; z-index: 1; display: block; width: 100%; height: 100%; position: absolute; left: 0; }
+#vkeyboard_viewer #input #cursor:not(.on) i { width: 0; height: 1.25rem; border-right: 1px solid #796f6f; left: 0; bottom: .5rem; }
+#vkeyboard_viewer #input #cursor:not(.on):not(.empty) i { left: calc(100% + .1rem); }
+#vkeyboard_viewer #input #cursor.on i { border-bottom: 1px solid #796f6f; bottom: .25rem; }
+#vkeyboard_viewer .frame { display: inline-block; position: relative; }
+#vkeyboard_viewer.on #cursor { left: auto; right: 0; }
+@keyframes cursor {
+    0% { opacity: 0; }
+    50% { opacity: 0; }
+    51% { opacity: 1; }
+    100% { opacity: 1; }
+}
+@keyframes twincle {
+    0% { opacity: 0; }
+    20% { opacity: .25; }
+    25% { opacity: .3; }
+    100% { opacity: 0; }
+}
+@keyframes bounce {
+    0% { bottom: .4rem; }
+    20% { bottom: .2rem; }
+    25% { bottom: .15rem; }
+    30% { bottom: .125rem; }
+    35% { bottom: .15rem; }
+    60% { bottom: .4rem; }
+    70% { bottom: .425rem; }
+    75% { bottom: .44rem; }
+    80% { bottom: .45rem; }
+    85% { bottom: .44rem; }
+    90% { bottom: .425rem; }
+    100% { bottom: .4rem; }
+}
+
+#vkeyboard #frame { position: relative; text-align: center; font-size: 0; }
+#vkeyboard #frame.language { width: calc(100% + .28rem); margin: 0 0 .85rem -.14rem; }
+#vkeyboard #frame.number { width: calc(100% + .5rem); margin: 0 0 .85rem -.28rem; }
+#vkeyboard #frame .key { display: inline-block; }
+#vkeyboard #frame.language .key { height: 1.6666rem; margin: .2rem .14rem; border-radius: .2rem; }
+#vkeyboard #frame.language .key.basicButton::after { box-shadow: .15rem .15rem .2rem rgba(0, 0, 0, .05); }
+#vkeyboard #frame.language .key.basicButton:active::after,
+#vkeyboard #frame.language .key.basicButton.on::after { box-shadow: inset .15rem .15rem .2rem rgba(0, 0, 0, .05); }
+#vkeyboard #frame.language .key.basicButton .layer { border: none; background: #F3EFEC; box-shadow: -.15rem -.15rem .2rem #fff; }
+#vkeyboard #frame.language .key.basicButton:active .layer,
+#vkeyboard #frame.language .key.basicButton.on .layer { box-shadow: inset -.15rem -.15rem .2rem #fff }
+#vkeyboard #frame.language .key#shift.basicButton:active .layer,
+#vkeyboard #frame.language .key.function.basicButton:not(#space):active .layer { box-shadow: inset -.15rem -.15rem .2rem rgba(255, 255, 255, .25); }
+#vkeyboard #frame.language .key.basicButton.disabled::before { display: none; }
+#vkeyboard #frame.language .key.basicButton.disabled { opacity: .2; }
+#vkeyboard #frame.language .key.basicButton.on::after { box-shadow: inset .15rem .15rem .2rem rgba(0, 0, 0, .05); }
+#vkeyboard #frame.language .key:not(.function) { width: calc(10% - .28rem); }
+#vkeyboard #frame.language .key::before,
+#vkeyboard #frame.language .key::after { border-radius: .1rem; }
+#vkeyboard #frame.number .key { height: 1.6666rem; width: calc(33% - .5rem); margin: .25rem; }
+#vkeyboard #frame.language .key .layer { font-size: .85rem; padding: .15rem 0; border-radius: .2rem; }
+#vkeyboard #frame.number .key .layer { font-size: 1.065rem; font-weight: 700; }
+#vkeyboard #frame .key#backspace,
+#vkeyboard #frame .key#shift { position: absolute; }
+#vkeyboard #frame.language .key#backspace, 
+#vkeyboard #frame.language .key#shift { min-width: 1.75rem; bottom: 0; transform: translateY(-100%); margin-bottom: 0.6rem; }
+#vkeyboard #frame.language .key#backspace { right: .035rem; }
+#vkeyboard #frame.language .key#shift { left: .035rem; }
+#vkeyboard #frame.number .key#backspace { right: 0.07rem; bottom: 0; }
+#vkeyboard #frame .key#switch,
+#vkeyboard #frame .key#enter { width: calc(25% - .28rem); }
+#vkeyboard #frame .key#space { width: calc(50% - .28rem); }
+#vkeyboard:not(.valid) #frame .key#enter { pointer-events: none; }
+#vkeyboard:not(.valid) #frame .key#enter::before { display: none; }
+#vkeyboard:not(.valid) #frame .key#enter::after { display: none; }
+#vkeyboard:not(.valid) #frame .key#enter .layer { background: rgba(93, 81, 52, .2); box-shadow: none; }
+#vkeyboard #frame .key.function .layer { font-size: .65rem; font-weight: 600; letter-spacing: 0; color: #000; padding: .325rem; }
+#vkeyboard #frame .key#switch .layer { background: #999280; }
+#vkeyboard #frame .key#enter .layer { color: #F3EFEC; background: #5D5134; }
+#vkeyboard #frame.number .key#backspace .layer { background: #F3EFEC url('./../images/ico_backspace_num.svg') center center; background-size: 1.0833rem auto; background-repeat: no-repeat; }
+#vkeyboard #frame.language .key#backspace .layer { background: #999280 url('./../images/ico_backspace.svg') center center; background-size: .9066rem auto; background-repeat: no-repeat; }
+#vkeyboard #frame.language .key#shift .layer { background: #999280 url('./../images/ico_shift.svg') center center; background-size: .7935rem auto; background-repeat: no-repeat; }
+#vkeyboard #frame.language .key#shift.on .layer { background: #F3EFEC url('./../images/ico_shift_on.svg') center center; background-size: .7508rem auto; background-repeat: no-repeat; }
+
+#output { width: 100%; font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; padding: .2rem 1.05rem; border: 2px solid #E6DCD1; background: #fff; }
+#output .alertEffect { opacity: 0; animation: twincle .5s linear; z-index: 99; content: ''; display: block; width: 100%; height: 100%; position: absolute; left: 0; top: 0; background: firebrick; }
+#output #vkeyboard_viewer { height: 2.25rem; overflow: hidden; white-space: nowrap; }
+#output #vkeyboard_viewer.confirmed { opacity: .25; }
+#output #vkeyboard_viewer:not(.limit) #whitespace { min-width: calc(100% - 1.25rem); position: absolute; right: 1.25rem; }
+#output #vkeyboard_viewer:not(.limit).kor.on #whitespace { min-width: 100%; right: 0; }
+#output #vkeyboard_viewer span:last-of-type::after { bottom: .25rem; }
+#output #vkeyboard_viewer.confirmed #cursor i,
+#output #vkeyboard_viewer.lock #cursor i { display: none; }
+#output #vkeyboard_viewer #timer { height: 100%; position: absolute; right: 0; top: 0; font-size: 1.1rem; font-weight: 400; padding: .2875rem 0; }
+#output #vkeyboard_viewer #storage { z-index: 1; display: inline-block; position: relative; }
+#output #vkeyboard_viewer #storage #input { letter-spacing: 0; }
+#output #vkeyboard_viewer #storage #input em { background: #fff; }
+#output #vkeyboard_viewer #storage #input em.down { color: transparent; }
+#output #vkeyboard_viewer #storage #input em.down::before { content: '*'; position: absolute; left: 0; top: .2rem; color: #5D5134; }
+#output #vkeyboard_viewer.phone { padding: 0 .2rem; }
+#output #vkeyboard_viewer.phone #placeholder { padding: 0 .2rem; }
+#output #vkeyboard_viewer.number #storage #input em::after,
+#output #vkeyboard_viewer.number #placeholder em::after { padding: 0 .425rem; }
+#output #vkeyboard_viewer.phone #storage #input em:nth-of-type(3)::after,
+#output #vkeyboard_viewer.phone #placeholder em:nth-of-type(3)::after,
+#output #vkeyboard_viewer.phone #storage #input em:nth-of-type(7)::after,
+#output #vkeyboard_viewer.phone #placeholder em:nth-of-type(7)::after { content: '-'; }
+#output #vkeyboard_viewer.regnum #storage em:nth-of-type(6)::after,
+#output #vkeyboard_viewer.regnum #placeholder em:nth-of-type(6)::after { content: '-'; }
+
+.modal { display: none; z-index: 9999; width: 100%; height: 100%; position: fixed; left: 0; top: 0; background: rgba(93, 81, 52, .8); }
+.modal.on { display: block; animation: fadeIn .5s linear; }
+.modal .frame { padding: 1rem; border-radius: .5rem; background: #fff; }
+.modal .frame .message { text-align: center; font-size: 1.1rem; font-weight: 500; color: #040302; margin-bottom: .8rem; }
+.modal .frame .message em { font-weight: 700; color: #040302; }
+.modal .frame .message .title { font-size: 1.15rem; display: block; color: #5D5134; margin-bottom: .05rem; }
+.modal#modal_main .frame .message .title,
+.modal#modal_back .frame .message .title { font-size: 1.1rem; }
+.modal .frame .message .title:only-child { font-size: 1rem; }
+.modal .frame .message .description { font-size: .8rem; font-weight: 500; }
+.modal#modal_main .frame .message .description,
+.modal#modal_back .frame .message .description { font-size: .75rem; }
+.modal .frame .buttonBox .basicButton:not(.confirm) .layer { background: #F1EFE5; }
+.modal .frame .buttonBox .basicButton:only-child { width: auto; }
+.modal .frame .buttonBox .basicButton:only-child .layer { padding: .7rem 1.3125rem; }
+
+.modal#agreement .frame { height: 21.3333rem; }
+.modal#agreement .frame .title { text-align: center; font-size: 1rem; margin-bottom: .25rem; }
+.modal#agreement .frame .textBox { height: 5rem; font-size: .275rem; padding: .4rem; background: #F3F3F3; }
+.modal#agreement .frame .textBox .content p { white-space: pre; text-wrap: pretty; }
+.modal#agreement .frame .buttonBox { padding-top: .2rem; }
+.modal#agreement .frame .buttonBox .basicButton { height: 2.5rem; }
+.modal#agreement .frame .buttonBox .basicButton .layer { padding: .425rem 0; }
+
+@media screen and (max-width: 1079px) {
+    html { font-size: 5.5555vw; }
+}
